@@ -18,9 +18,9 @@ df_buscos = pd.read_csv(args.buscoTable, sep='\t', comment='#', usecols=[0, 1, 2
 df_buscos.columns = ["busco id", "status", "# record"]
 
 
-df_# record_lengths = pd.DataFrame(columns=('# record', 'length'))
-for # record in SeqIO.parse(args.fasta, "fasta"):
-	df_# record_lengths = df_# record_lengths.append({'# record' : # record.name, 'length' : len(# record.seq)}, ignore_index = True)
+df_record_lengths = pd.DataFrame(columns=('# record', 'length'))
+for record in SeqIO.parse(args.fasta, "fasta"):
+	df_record_lengths = df_record_lengths.append({'# record' : record.name, 'length' : len(record.seq)}, ignore_index = True)
 
 df_buscos["# record"] = df_buscos["# record"].apply(str)
 
@@ -59,7 +59,7 @@ for filename in os.listdir(path):
          with open(os.path.join(path, filename), 'r') as f:
                 readCov = json.loads(f.read())
                 
-coverage = pd.json_normalize(readCov, # record_path=['values'])
+coverage = pd.json_normalize(readCov, record_path=['values'])
 
 def assignContaminantstoSpecies(taxa_dict, ctgLengths, cov):
     df_id = ctgLengths
@@ -67,9 +67,9 @@ def assignContaminantstoSpecies(taxa_dict, ctgLengths, cov):
     df_id = df_id.rename(columns={0: "coverage"})
     for taxon, file in taxa_dict.items():
         for key in file:
-            values = pd.json_normalize(file, # record_path=['values'])
+            values = pd.json_normalize(file, record_path=['values'])
             values = values.set_axis(['value'], axis=1)
-            keys = pd.json_normalize(file, # record_path=['keys'])
+            keys = pd.json_normalize(file, record_path=['keys'])
             keys = keys.set_axis([taxon], axis=1)
             keys['value'] = keys.index
             df_vk = values.join(keys, lsuffix='_value', rsuffix='_key', on = 'value')[taxon]
@@ -102,7 +102,7 @@ def addBUSCOs(df, buscos):
     df_busco_cols["duplicated BUSCOs"] = df_busco_cols["duplicated BUSCOs"].astype(int)
     return df_busco_cols
 
-out1 = assignContaminantstoSpecies(taxa, df_# record_lengths, coverage)
+out1 = assignContaminantstoSpecies(taxa, df_record_lengths, coverage)
 out2 = addBUSCOs(out1, df_buscos)
 
 speciesTbl = out2[["# record", "length", "coverage", "coverage class", "complete BUSCOs", "duplicated BUSCOs", "phylum", "class", "order", "family", "genus", "species"]]
