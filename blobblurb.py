@@ -8,15 +8,17 @@ import os
 import re
 from Bio import SeqIO
 
-parser = argparse.ArgumentParser()
+parser = argparse.ArgumentParser(prog="prog")
 parser.add_argument("blobdir", help="The blob directory containing bestsumorder and identifiers files in .json format")
 parser.add_argument("buscoTable", help="The full table output of BUSCO (usually called: full_table.tsv for BUSCO5 or full_table_{outprefix}.tsv for BUSCO3)")
 parser.add_argument("fasta", help=".fasta BLASTed and Diamond BLASTed")
+
+parser.add_argument("-v", "--version", help="Print version.", action="version", version="v1.2")
+
 args = parser.parse_args()
 
 df_buscos = pd.read_csv(args.buscoTable, sep='\t', comment='#', usecols=[0, 1, 2], header=None)
 df_buscos.columns = ["busco id", "status", "# record"]
-
 
 df_record_lengths = pd.DataFrame(columns=('# record', 'length'))
 for record in SeqIO.parse(args.fasta, "fasta"):
@@ -115,4 +117,4 @@ species_outfile = prefix + '_blobblurbout.tsv'
 
 speciesTbl.to_csv(species_outfile, sep='\t', index=False, header=True)
 
-print("Blobblurb finished blurbing.")
+print("blobblurb finished blurbing.")
